@@ -1,5 +1,9 @@
 package app;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -8,7 +12,7 @@ public class Terminal {
 	public static String name, endereco, email, instagram, local_de_trabalho;
 	public static int op, celular, telefone;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		boolean exit = false;
 		ArrayList<Contato> contato = new ArrayList<Contato>();
 		while (true) {
@@ -52,25 +56,29 @@ public class Terminal {
 		System.out.println("========================");
 	}
 
-	public static void novoContato(ArrayList<Contato> ctt) {
+	public static void novoContato(ArrayList<Contato> ctt) throws IOException {
 		System.out.println("========================");
 		System.out.println("         Contato        ");
 		System.out.println("========================");
 		System.out.print("Nome: ");
 		name = in.next();
-		System.out.print("Celular: ");
-		celular = in.nextInt();
-		System.out.print("Telefone: ");
-		telefone = in.nextInt();
-		System.out.print("E-mail: ");
-		email = in.next();
-		System.out.print("Instagram: ");
-		instagram = in.next();
-		System.out.print("Endereço: ");
-		endereco = in.next();
-		System.out.print("Local de Trabalho: ");
-		local_de_trabalho = in.next();
-		ctt.add(new Contato(name, celular, telefone, endereco, email, instagram, local_de_trabalho));
+		if (name.equals("admin.fill.list")) {
+			autoInsert(ctt);
+		} else {
+			System.out.print("Celular: ");
+			celular = in.nextInt();
+			System.out.print("Telefone: ");
+			telefone = in.nextInt();
+			System.out.print("E-mail: ");
+			email = in.next();
+			System.out.print("Instagram: ");
+			instagram = in.next();
+			System.out.print("Endereço: ");
+			endereco = in.next();
+			System.out.print("Local de Trabalho: ");
+			local_de_trabalho = in.next();
+			ctt.add(new Contato(name, celular, telefone, endereco, email, instagram, local_de_trabalho));
+		}
 	}
 
 	public static void listContatos(ArrayList<Contato> ctt) {
@@ -148,5 +156,43 @@ public class Terminal {
 			System.out.println("========================");
 			System.out.println("Não há contatos ainda");
 		}
+	}
+
+	public static void autoInsert(ArrayList<Contato> ctt) throws IOException {
+		try {
+			FileReader arq = new FileReader("src/app/contatos.txt");
+			BufferedReader lerArq = new BufferedReader(arq);
+			String linha = "";
+			int i = 0;
+			linha = lerArq.readLine();
+			while (linha != null) {
+				if (linha.substring(0, 2).equals(i + "|")) {
+					if (i == 0)
+						name = linha.substring(2);
+					if (i == 1)
+						celular = Integer.parseInt(linha.substring(2));
+					if (i == 2)
+						telefone = Integer.parseInt(linha.substring(2));
+					if (i == 3)
+						email = linha.substring(2);
+					if (i == 4)
+						instagram = linha.substring(2);
+					if (i == 5)
+						endereco = instagram = linha.substring(2);
+					if (i == 6)
+						local_de_trabalho = linha.substring(2);
+					if (i == 6)
+						ctt.add(new Contato(name, celular, telefone, endereco, email, instagram, local_de_trabalho));
+					if (i == 6)
+						i -= 6;
+					else
+						i++;
+				}
+				linha = lerArq.readLine();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
 	}
 }
