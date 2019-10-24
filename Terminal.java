@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 public class Terminal {
 	public static Scanner in = new Scanner(System.in);
-	public static String name, endereco, email, instagram, local_de_trabalho;
+	public static String name, endereco, email, instagram, local_de_trabalho, nameId;
 	public static int op, celular, telefone;
 
 	public static void main(String[] args) throws IOException {
@@ -24,7 +24,25 @@ public class Terminal {
 				novoContato(contato);
 				break;
 			case 2:
-				listContatos(contato);
+				if (contato != null && !contato.isEmpty()) {
+					subMenu();
+					System.out.print("Opção: ");
+					op = in.nextInt();
+					switch (op) {
+					case 1:
+						listContatos(contato, 1);
+						break;
+					case 2:
+						listContatos(contato, 2);
+						break;
+					case 3:
+						listContatos(contato, 3);
+						break;
+					}
+				} else {
+					System.out.println("========================");
+					System.out.println("Não há contatos ainda");
+				}
 				break;
 			case 3:
 				editContato(contato);
@@ -49,10 +67,20 @@ public class Terminal {
 		System.out.println("          Menu          ");
 		System.out.println("========================");
 		System.out.println("[ 1 ] Novo Contato      ");
-		System.out.println("[ 2 ] Mostrar (todos)   ");
+		System.out.println("[ 2 ] Mostrar           ");
 		System.out.println("[ 3 ] Editar            ");
 		System.out.println("[ 4 ] Deletar           ");
 		System.out.println("[ 5 ] Sair              ");
+		System.out.println("========================");
+	}
+
+	public static void subMenu() {
+		System.out.println("========================");
+		System.out.println("         Mostrar        ");
+		System.out.println("========================");
+		System.out.println("[ 1 ] Nome              ");
+		System.out.println("[ 2 ] Local de Trabalho ");
+		System.out.println("[ 3 ] Todos             ");
 		System.out.println("========================");
 	}
 
@@ -81,8 +109,58 @@ public class Terminal {
 		}
 	}
 
-	public static void listContatos(ArrayList<Contato> ctt) {
-		if (ctt != null && !ctt.isEmpty()) {
+	public static void listContatos(ArrayList<Contato> ctt, int op) {
+		if (op == 1) {
+			System.out.print("Informe um nome: ");
+			nameId = in.next();
+			int id = -1, i = 0;
+			for (Contato c : ctt) {
+				if(nameId.equalsIgnoreCase(c.getName())) {
+					id = i;
+					break;
+				}else {
+					i++;
+				}
+			}
+			if (i != ctt.size()) {
+				System.out.println("------------------------");
+				System.out.printf("Nome: %s\n", ctt.get(id).getName());
+				System.out.printf("Celular: %s\n", ctt.get(id).getCelular());
+				System.out.printf("Telefone: %s\n", ctt.get(id).getTelefone());
+				System.out.printf("E-mail: %s\n", ctt.get(id).getEmail());
+				System.out.printf("Instagram: %s\n", ctt.get(id).getInstagram());
+				System.out.printf("Endereço: %s\n", ctt.get(id).getEndereco());
+				System.out.printf("Local de Trabalho: %s\n", ctt.get(id).getLocalDeTrabalho());
+			} else {
+				System.out.println("Contato inexistente!!!");
+			}
+		} else if (op == 2) {
+			System.out.print("Informe o nome da empressa: ");
+			nameId = in.next();
+			boolean [] idList = new boolean[ctt.size()];
+			int i = 0;
+			for (Contato c : ctt) {
+				if(nameId.equalsIgnoreCase(c.getLocalDeTrabalho())) {
+					idList[i] = true;
+					i++;
+				}else {
+					idList[i] = false;
+					i++;
+				}
+			}
+			for (int l = 0; l < idList.length; l++) {
+				if(idList[l]) {
+					System.out.println("------------------------");
+					System.out.printf("Nome: %s\n", ctt.get(l).getName());
+					System.out.printf("Celular: %s\n", ctt.get(l).getCelular());
+					System.out.printf("Telefone: %s\n", ctt.get(l).getTelefone());
+					System.out.printf("E-mail: %s\n", ctt.get(l).getEmail());
+					System.out.printf("Instagram: %s\n", ctt.get(l).getInstagram());
+					System.out.printf("Endereço: %s\n", ctt.get(l).getEndereco());
+					System.out.printf("Local de Trabalho: %s\n", ctt.get(l).getLocalDeTrabalho());
+				}
+			}
+		} else if (op == 3) {
 			for (Contato c : ctt) {
 				System.out.println("------------------------");
 				System.out.printf("Nome: %s\n", c.getName());
@@ -92,18 +170,15 @@ public class Terminal {
 				System.out.printf("Instagram: %s\n", c.getInstagram());
 				System.out.printf("Endereço: %s\n", c.getEndereco());
 				System.out.printf("Local de Trabalho: %s\n", c.getLocalDeTrabalho());
-
 			}
-		} else {
-			System.out.println("========================");
-			System.out.println("Não há contatos ainda");
 		}
+
 	}
 
 	public static void editContato(ArrayList<Contato> ctt) {
 		if (ctt != null && !ctt.isEmpty()) {
 			System.out.print("Informe o nome para a edição: ");
-			String nameId = in.next();
+			nameId = in.next();
 			int id = 0;
 			for (int i = 0; i < ctt.size(); i++) {
 				if (nameId.equalsIgnoreCase(ctt.get(i).getName())) {
@@ -143,7 +218,7 @@ public class Terminal {
 			for (int i = 0; i < ctt.size(); i++) {
 				if (nameId.equalsIgnoreCase(ctt.get(i).getName())) {
 					ctt.remove(i);
-					System.out.println("Deletado com sucesso!!");
+					System.out.println("Deletado com sucesso!!!");
 					break;
 				} else {
 					id = -1;
