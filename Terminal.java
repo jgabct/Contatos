@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 public class Terminal {
 	public static Scanner in = new Scanner(System.in);
-	public static String shortcut = "admin@main.fillList";
+	public static String shortcut = "system_call_generate_contacts_auto";
 	public static String name, endereco, email, instagram, local_de_trabalho, nameId;
 	public static int op, celular, telefone;
 
@@ -25,7 +25,7 @@ public class Terminal {
 				break;
 			case 2:
 				if (contato != null && !contato.isEmpty()) {
-					subMenu();
+					displaySubMenu();
 					System.out.print("Opção: ");
 					op = in.nextInt();
 					switch (op) {
@@ -38,6 +38,10 @@ public class Terminal {
 					case 3:
 						listContatos(contato, 3);
 						break;
+					default:
+						System.out.println("========================");
+						System.out.println("Não é um opção!!!");
+						break;
 					}
 				} else {
 					System.out.println("========================");
@@ -48,18 +52,38 @@ public class Terminal {
 				editContato(contato);
 				break;
 			case 4:
-				deleteContato(contato);
+				if (contato != null && !contato.isEmpty()) {
+					deleteSubMenu();
+					System.out.print("Opção: ");
+					op = in.nextInt();
+					switch (op) {
+					case 1:
+						deleteContato(contato, 1);
+						break;
+					case 2:
+						deleteContato(contato, 2);
+						break;
+					default:
+						System.out.println("========================");
+						System.out.println("Não é um opção!!!");
+						break;
+					}
+				} else {
+					System.out.println("========================");
+					System.out.println("Não há contatos ainda");
+				}
 				break;
 			case 5:
 				exit = true;
 				break;
 			default:
+				System.out.println("========================");
+				System.out.println("Não é um opção!!!");
 				break;
 			}
 			if (exit)
 				break;
 		}
-
 	}
 
 	public static void menu() {
@@ -74,7 +98,7 @@ public class Terminal {
 		System.out.println("========================");
 	}
 
-	public static void subMenu() {
+	public static void displaySubMenu() {
 		System.out.println("========================");
 		System.out.println("         Mostrar        ");
 		System.out.println("========================");
@@ -84,16 +108,25 @@ public class Terminal {
 		System.out.println("========================");
 	}
 
+	public static void deleteSubMenu() {
+		System.out.println("========================");
+		System.out.println("         Deletar        ");
+		System.out.println("========================");
+		System.out.println("[ 1 ] Nome              ");
+		System.out.println("[ 2 ] Lista de Contatos ");
+		System.out.println("========================");
+	}
+
 	public static void novoContato(ArrayList<Contato> ctt) throws IOException {
 		System.out.println("========================");
 		System.out.println("         Contato        ");
 		System.out.println("========================");
 		System.out.print("Nome: ");
-		name = in.next();
+		name = in.next().toLowerCase();
 		if (!name.equals(shortcut)) {
 			while (!testName(name, ctt)) {
 				System.out.print("Nome já exitente, insira novamente: ");
-				name = in.next();
+				name = in.next().toLowerCase();
 			}
 			System.out.print("Celular: ");
 			celular = in.nextInt();
@@ -116,7 +149,7 @@ public class Terminal {
 	public static void listContatos(ArrayList<Contato> ctt, int op) {
 		if (op == 1) {
 			System.out.print("Informe um nome: ");
-			nameId = in.next();
+			nameId = in.next().toLowerCase();
 			int id = -1, i = 0;
 			for (Contato c : ctt) {
 				if (nameId.equalsIgnoreCase(c.getName())) {
@@ -128,7 +161,7 @@ public class Terminal {
 			}
 			if (i != ctt.size()) {
 				System.out.println("------------------------");
-				System.out.printf("Nome: %s\n", ctt.get(id).getName());
+				System.out.printf("Nome: %s\n", capitalize(ctt.get(id).getName()));
 				System.out.printf("Celular: %s\n", ctt.get(id).getCelular());
 				System.out.printf("Telefone: %s\n", ctt.get(id).getTelefone());
 				System.out.printf("E-mail: %s\n", ctt.get(id).getEmail());
@@ -155,7 +188,7 @@ public class Terminal {
 			for (int l = 0; l < idList.length; l++) {
 				if (idList[l]) {
 					System.out.println("------------------------");
-					System.out.printf("Nome: %s\n", ctt.get(l).getName());
+					System.out.printf("Nome: %s\n", capitalize(ctt.get(l).getName()));
 					System.out.printf("Celular: %s\n", ctt.get(l).getCelular());
 					System.out.printf("Telefone: %s\n", ctt.get(l).getTelefone());
 					System.out.printf("E-mail: %s\n", ctt.get(l).getEmail());
@@ -167,7 +200,7 @@ public class Terminal {
 		} else if (op == 3) {
 			for (Contato c : ctt) {
 				System.out.println("------------------------");
-				System.out.printf("Nome: %s\n", c.getName());
+				System.out.printf("Nome: %s\n", capitalize(c.getName()));
 				System.out.printf("Celular: %s\n", c.getCelular());
 				System.out.printf("Telefone: %s\n", c.getTelefone());
 				System.out.printf("E-mail: %s\n", c.getEmail());
@@ -182,7 +215,7 @@ public class Terminal {
 	public static void editContato(ArrayList<Contato> ctt) {
 		if (ctt != null && !ctt.isEmpty()) {
 			System.out.print("Informe o nome para a edição: ");
-			nameId = in.next();
+			nameId = in.next().toLowerCase();
 			int id = 0;
 			for (int i = 0; i < ctt.size(); i++) {
 				if (nameId.equalsIgnoreCase(ctt.get(i).getName())) {
@@ -214,10 +247,10 @@ public class Terminal {
 		}
 	}
 
-	public static void deleteContato(ArrayList<Contato> ctt) {
-		if (ctt != null && !ctt.isEmpty()) {
+	public static void deleteContato(ArrayList<Contato> ctt, int op) {
+		if(op == 1) {
 			System.out.print("Informe o nome para a deletar: ");
-			String nameId = in.next();
+			String nameId = in.next().toLowerCase();
 			int id = 0;
 			for (int i = 0; i < ctt.size(); i++) {
 				if (nameId.equalsIgnoreCase(ctt.get(i).getName())) {
@@ -231,25 +264,38 @@ public class Terminal {
 			if (id != 0) {
 				System.out.println("O Contato não existe");
 			}
-		} else {
+		}else if (op == 2) {
+			int key = 0;
 			System.out.println("========================");
-			System.out.println("Não há contatos ainda");
-		}
-	}
-
-	public static void autoFillContactList(ArrayList<Contato> ctt) throws IOException{
-		String [] dados  = fileReader("src/app/contatos.txt").split(";");
-		int l = 0;
-		for (int i = 0; i < (dados.length/7); i++) {
-			if(testName(dados[l],ctt)) {
-				ctt.add(new Contato(dados[l],Integer.parseInt(dados[(l+1)]),Integer.parseInt(dados[(l+2)]),dados[(l+3)],dados[(l+4)],dados[l+5],dados[l+6]));
-				l+=7;				
+			for (Contato c : ctt) {
+				System.out.println("["+(key+1)+"] "+ capitalize(c.getName()));
+				key++;
+			}
+			System.out.print("Opção: ");
+			key = in.nextInt()-1;
+			if(key>=0&&key<ctt.size()) {
+				ctt.remove(key);
+				System.out.println("Deletado com sucesso!!!");
 			}else {
-				l+=7;
+				System.out.println("Operação interrompida");
 			}
 		}
 	}
-	
+
+	public static void autoFillContactList(ArrayList<Contato> ctt) throws IOException {
+		String[] dados = fileReader("src/app/contatos.txt").split(";");
+		int l = 0;
+		for (int i = 0; i < (dados.length / 7); i++) {
+			if (testName(dados[l], ctt)) {
+				ctt.add(new Contato(dados[l].toLowerCase(), Integer.parseInt(dados[(l + 1)]), Integer.parseInt(dados[(l + 2)]),
+						dados[(l + 3)], dados[(l + 4)], dados[l + 5], dados[l + 6]));
+				l += 7;
+			} else {
+				l += 7;
+			}
+		}
+	}
+
 	public static String fileReader(String stg) throws IOException {
 		FileReader arq = new FileReader(stg);
 		BufferedReader lerArq = new BufferedReader(arq);
@@ -261,7 +307,7 @@ public class Terminal {
 		}
 		return inlineText;
 	}
-	
+
 	public static boolean testName(String name, ArrayList<Contato> ctt) {
 		boolean valid = true;
 		for (int i = 0; i < ctt.size(); i++) {
@@ -271,5 +317,9 @@ public class Terminal {
 			}
 		}
 		return valid;
+	}
+
+	public static String capitalize(String text) {
+		return text.substring(0,1).toUpperCase() + text.substring(1);
 	}
 }
