@@ -1,7 +1,6 @@
 package app;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,6 +8,7 @@ import java.util.Scanner;
 
 public class Terminal {
 	public static Scanner in = new Scanner(System.in);
+	public static String shortcut = "admin@main.fillList";
 	public static String name, endereco, email, instagram, local_de_trabalho, nameId;
 	public static int op, celular, telefone;
 
@@ -90,9 +90,11 @@ public class Terminal {
 		System.out.println("========================");
 		System.out.print("Nome: ");
 		name = in.next();
-		if (name.equals("admin.fill.list")) {
-			autoInsert(ctt);
-		} else {
+		if (!name.equals(shortcut)) {
+			while (!testName(name, ctt)) {
+				System.out.print("Nome já exitente, insira novamente: ");
+				name = in.next();
+			}
 			System.out.print("Celular: ");
 			celular = in.nextInt();
 			System.out.print("Telefone: ");
@@ -106,6 +108,8 @@ public class Terminal {
 			System.out.print("Local de Trabalho: ");
 			local_de_trabalho = in.next();
 			ctt.add(new Contato(name, celular, telefone, endereco, email, instagram, local_de_trabalho));
+		} else {
+			autoFillContactList(ctt);
 		}
 	}
 
@@ -115,10 +119,10 @@ public class Terminal {
 			nameId = in.next();
 			int id = -1, i = 0;
 			for (Contato c : ctt) {
-				if(nameId.equalsIgnoreCase(c.getName())) {
+				if (nameId.equalsIgnoreCase(c.getName())) {
 					id = i;
 					break;
-				}else {
+				} else {
 					i++;
 				}
 			}
@@ -137,19 +141,19 @@ public class Terminal {
 		} else if (op == 2) {
 			System.out.print("Informe o nome da empressa: ");
 			nameId = in.next();
-			boolean [] idList = new boolean[ctt.size()];
+			boolean[] idList = new boolean[ctt.size()];
 			int i = 0;
 			for (Contato c : ctt) {
-				if(nameId.equalsIgnoreCase(c.getLocalDeTrabalho())) {
+				if (nameId.equalsIgnoreCase(c.getLocalDeTrabalho())) {
 					idList[i] = true;
 					i++;
-				}else {
+				} else {
 					idList[i] = false;
 					i++;
 				}
 			}
 			for (int l = 0; l < idList.length; l++) {
-				if(idList[l]) {
+				if (idList[l]) {
 					System.out.println("------------------------");
 					System.out.printf("Nome: %s\n", ctt.get(l).getName());
 					System.out.printf("Celular: %s\n", ctt.get(l).getCelular());
@@ -233,41 +237,39 @@ public class Terminal {
 		}
 	}
 
-	public static void autoInsert(ArrayList<Contato> ctt) throws IOException {
-		try {
-			FileReader arq = new FileReader("src/app/contatos.txt");
-			BufferedReader lerArq = new BufferedReader(arq);
-			String linha = "";
-			int i = 0;
-			linha = lerArq.readLine();
-			while (linha != null) {
-				if (linha.substring(0, 2).equals(i + "|")) {
-					if (i == 0)
-						name = linha.substring(2);
-					if (i == 1)
-						celular = Integer.parseInt(linha.substring(2));
-					if (i == 2)
-						telefone = Integer.parseInt(linha.substring(2));
-					if (i == 3)
-						email = linha.substring(2);
-					if (i == 4)
-						instagram = linha.substring(2);
-					if (i == 5)
-						endereco = instagram = linha.substring(2);
-					if (i == 6)
-						local_de_trabalho = linha.substring(2);
-					if (i == 6)
-						ctt.add(new Contato(name, celular, telefone, endereco, email, instagram, local_de_trabalho));
-					if (i == 6)
-						i -= 6;
-					else
-						i++;
-				}
-				linha = lerArq.readLine();
+	public static void autoFillContactList(ArrayList<Contato> ctt) throws IOException{
+		String [] dados  = fileReader("src/app/contatos.txt").split(";");
+		int l = 0;
+		for (int i = 0; i < (dados.length/7); i++) {
+			if(testName(dados[l],ctt)) {
+				ctt.add(new Contato(dados[l],Integer.parseInt(dados[(l+1)]),Integer.parseInt(dados[(l+2)]),dados[(l+3)],dados[(l+4)],dados[l+5],dados[l+6]));
+				l+=7;				
+			}else {
+				l+=7;
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		}
-
+	}
+	
+	public static String fileReader(String stg) throws IOException {
+		FileReader arq = new FileReader(stg);
+		BufferedReader lerArq = new BufferedReader(arq);
+		String linha = "", inlineText = "";
+		linha = lerArq.readLine();
+		while (linha != null) {
+			inlineText += linha;
+			linha = lerArq.readLine();
+		}
+		return inlineText;
+	}
+	
+	public static boolean testName(String name, ArrayList<Contato> ctt) {
+		boolean valid = true;
+		for (int i = 0; i < ctt.size(); i++) {
+			if (name.equalsIgnoreCase(ctt.get(i).getName())) {
+				valid = false;
+				break;
+			}
+		}
+		return valid;
 	}
 }
